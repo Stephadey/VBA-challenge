@@ -1,4 +1,11 @@
 # Module 2 VBA-challenge
+In the completed file you can run the code manually or I have added a new sheet at the front called 'Menu' which has 2 buttons:
+-   The first adds the Ticker Data;
+-   The Second adds the Greatest data;
+-   You have the option for both buttons to select either All sheets or individual sheets
+
+I haven't run the file yet in the attached version, to allow testing from the graders.
+
 
 ### Background
 
