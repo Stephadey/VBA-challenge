@@ -4,8 +4,8 @@ In the completed file you can run the code manually or I have added a new sheet 
 -   The Second adds the Greatest data;
 -   You have the option for both buttons to select either All sheets or individual sheets
 
-I haven't run the file yet in the attached version, to allow testing from the graders.
-
+I haven't run the file yet in the linked version, to allow testing from the graders.
+Google Doc:
 
 ### Background
 
