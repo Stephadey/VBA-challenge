@@ -1,1 +1,242 @@
+Sub Ticker_Summary()
+'
+' Macro1 Macro
+'
+
+
+'Checks whether all sheets or a specific sheet are selected
+    If Sheets("Menu").Range("A5").Value = "All Sheets" Then
+    firstsheet = 2
+    lastsheet = ThisWorkbook.Sheets.Count
+    Else
+    firstsheet = ThisWorkbook.Sheets(Sheets("Menu").Range("A5").Value).Index
+    lastsheet = ThisWorkbook.Sheets(Sheets("Menu").Range("A5").Value).Index
+    End If
+    
+'Cycles through selected sheets
+    For i = firstsheet To lastsheet
+    
+        Worksheets(i).Select
+        
+'Freezes window Panes at B2
+        Range("B2").Select
+        ActiveWindow.FreezePanes = True
+        
+'Creates Variables
+    lastrow = Range("A1").End(xlDown).Row
+        
+'Creates divider for ticker analysis
+        If Range("I1").Value = "" Then
+        Columns("H:H").ColumnWidth = 2.45
+        Columns("H:H").Interior.Color = 0
+        End If
+        
+'Adds Ticker Analysis Headings
+        Range("I1").Value = "Ticker"
+        Range("J1").Value = "Yearly Change"
+        Range("K1").Value = "Percent Change"
+        Range("L1").Value = "Total Stock Volume"
+        Range("I1:L1").Font.Bold = True
+        Columns("J:L").EntireColumn.AutoFit
+        
+'Adds Ticker Data
+        Range("I2").Value = "=UNIQUE(A2:A" & lastrow & ")"
+          Cells.Replace What:="@", Replacement:="", LookAt:=xlPart, SearchOrder:= _
+        xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False, _
+        FormulaVersion:=xlReplaceFormula2
+        lasttickerrow = Range("I2").End(xlDown).Row
+        Range("I2:I" & lasttickerrow).Value = Range("I2:I" & lasttickerrow).Value
+        
+
+        tickerrow = 2
+        Do Until Range("I" & tickerrow).Value = ""
+        
+        startpricerow = WorksheetFunction.Match(Range("I" & tickerrow).Value, Columns("A:A"), 0)
+        startprice = Range("C" & startpricerow).Value
+        
+        closepricerow = startpricerow + WorksheetFunction.CountIf(Columns("A:A"), Range("I" & tickerrow).Value) - 1
+        closeprice = Range("F" & closepricerow).Value
+        
+'Adds Yearly Change
+        Range("J" & tickerrow).Value = closeprice - startprice
+
+'Adds Percent Change
+        Range("K" & tickerrow).Value = closeprice / startprice - 1
+        
+'Adds Total Stock Volume
+        Range("L" & tickerrow).Value = WorksheetFunction.Sum(Range("G" & startpricerow & ":G" & closepricerow))
+        
+        tickerrow = tickerrow + 1
+        Loop
+        
+'Adds Positive Conditional fomratting to Yearly Change
+        With Range("J2:J" & lasttickerrow)
+        .FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, _
+        Formula1:="=0"
+        .FormatConditions(Range("J2:J" & lasttickerrow).FormatConditions.Count).SetFirstPriority
+        End With
+        
+        With Range("J2:J" & lasttickerrow).FormatConditions(1).Interior
+        .PatternColorIndex = xlAutomatic
+        .Color = 5296274
+        .TintAndShade = 0
+        End With
+        Range("J2:J" & lasttickerrow).FormatConditions(1).StopIfTrue = False
+        
+'Adds Negative Conditional fomratting to Yearly Change
+        With Range("J2:J" & lasttickerrow)
+        .FormatConditions.Add Type:=xlCellValue, Operator:=xlLess, _
+        Formula1:="=0"
+        .FormatConditions(Range("J2:J" & lasttickerrow).FormatConditions.Count).SetFirstPriority
+        End With
+    
+        With Range("J2:J" & lasttickerrow).FormatConditions(1).Interior
+        .PatternColorIndex = xlAutomatic
+        .Color = 255
+        .TintAndShade = 0
+        End With
+        Range("J2:J" & lasttickerrow).FormatConditions(1).StopIfTrue = False
+        
+'Changes Percent Change Number Format
+        Range("K2:K" & lasttickerrow).NumberFormat = "0.00%"
+        
+    Next i
+    
+    Sheets("Menu").Select
+    MsgBox ("The Ticker Summary Data has now been added to your selected sheet(s)")
+
+
+End Sub
+
+----------------------------------
+----------------------------------
+
+Sub Greatest_Summary()
+'
+' Macro1 Macro
+'
+
+
+'Checks whether all sheets or a specific sheet are selected
+    If Sheets("Menu").Range("A5").Value = "All Sheets" Then
+    firstsheet = 2
+    lastsheet = ThisWorkbook.Sheets.Count
+    Else
+    firstsheet = ThisWorkbook.Sheets(Sheets("Menu").Range("A5").Value).Index
+    lastsheet = ThisWorkbook.Sheets(Sheets("Menu").Range("A5").Value).Index
+    End If
+    
+'Cycles through selected sheets
+    For i = firstsheet To lastsheet
+    
+        Worksheets(i).Select
+        
+'Creates Variables
+    lastrow = Range("A1").End(xlDown).Row
+        
+'Creates divider for ticker analysis
+        If Range("N1").Value = "" Then
+        Columns("M:M").ColumnWidth = 2.45
+        Columns("M:M").Interior.Color = 0
+        End If
+        
+'Adds Greatest Summary Headings
+        Range("N2").Value = "Greatest % Increase"
+        Range("N3").Value = "Greatest % Decrease"
+        Range("N4").Value = "Greatest Total Volume"
+        Range("O1").Value = "Ticker"
+        Range("P1").Value = "Value"
+        Range("N2:N4").Font.Bold = True
+        Range("O1:P1").Font.Bold = True
+        Columns("N:N").EntireColumn.AutoFit
+        
+'Adds Greatest % Increase, Ticker and changes number format
+        Range("P2").Value = WorksheetFunction.Max(Columns("K:K"))
+        Range("O2").Value = Range("I" & WorksheetFunction.Match(Range("P2").Value, Columns("K:K"), 0)).Value
+        Range("P2").NumberFormat = "0.00%"
+          
+'Adds Greatest % Decrease, Ticker and changes number format
+        Range("P3").Value = WorksheetFunction.Min(Columns("K:K"))
+        Range("O3").Value = Range("I" & WorksheetFunction.Match(Range("P3").Value, Columns("K:K"), 0)).Value
+        Range("P3").NumberFormat = "0.00%"
+          
+'Adds Greatest Total Volume and Ticker
+        Range("P4").Value = WorksheetFunction.Max(Columns("L:L"))
+        Columns("P:P").EntireColumn.AutoFit
+        Range("O4").Value = Range("I" & WorksheetFunction.Match(Range("P4").Value, Columns("L:L"), 0)).Value
+        
+    Next i
+    
+    Sheets("Menu").Select
+    MsgBox ("The Greatest Summary Data has now been added to your selected sheet(s)")
+
+    
+End Sub
+
+Sub Greatest_Summary()
+'
+' Macro1 Macro
+'
+
+'
+
+
+'Checks whether all sheets or a specific sheet are selected
+    If Sheets("Menu").Range("A5").Value = "All Sheets" Then
+    firstsheet = 2
+    lastsheet = ThisWorkbook.Sheets.Count
+    Else
+    firstsheet = ThisWorkbook.Sheets(Sheets("Menu").Range("A5").Value).Index
+    lastsheet = ThisWorkbook.Sheets(Sheets("Menu").Range("A5").Value).Index
+    End If
+    
+'Cycles through selected sheets
+    For i = firstsheet To lastsheet
+    
+        Worksheets(i).Select
+        
+'Creates Variables
+    lastrow = Range("A1").End(xlDown).Row
+        
+'Creates divider for ticker analysis
+        If Range("N1").Value = "" Then
+        Columns("M:M").ColumnWidth = 2.45
+        Columns("M:M").Interior.Color = 0
+        End If
+        
+'Adds Greatest Summary Headings
+        Range("N2").Value = "Greatest % Increase"
+        Range("N3").Value = "Greatest % Decrease"
+        Range("N4").Value = "Greatest Total Volume"
+        Range("O1").Value = "Ticker"
+        Range("P1").Value = "Value"
+        Range("N2:N4").Font.Bold = True
+        Range("O1:P1").Font.Bold = True
+        Columns("N:N").EntireColumn.AutoFit
+        
+'Adds Greatest % Increase, Ticker and changes number format
+        Range("P2").Value = WorksheetFunction.Max(Columns("K:K"))
+        Range("O2").Value = Range("I" & WorksheetFunction.Match(Range("P2").Value, Columns("K:K"), 0)).Value
+        Range("P2").NumberFormat = "0.00%"
+          
+'Adds Greatest % Decrease, Ticker and changes number format
+        Range("P3").Value = WorksheetFunction.Min(Columns("K:K"))
+        Range("O3").Value = Range("I" & WorksheetFunction.Match(Range("P3").Value, Columns("K:K"), 0)).Value
+        Range("P3").NumberFormat = "0.00%"
+          
+'Adds Greatest Total Volume and Ticker
+        Range("P4").Value = WorksheetFunction.Max(Columns("L:L"))
+        Columns("P:P").EntireColumn.AutoFit
+        Range("O4").Value = Range("I" & WorksheetFunction.Match(Range("P4").Value, Columns("L:L"), 0)).Value
+        
+    Next i
+    
+    Sheets("Menu").Select
+    MsgBox ("The Greatest Summary Data has now been added to your selected sheet(s)")
+
+    
+End Sub
+
+
+
 
