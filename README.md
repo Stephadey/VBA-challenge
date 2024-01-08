@@ -1,5 +1,4 @@
-# VBA-challenge
-# Module 2 Challenge
+# Module 2 VBA-challenge
 
 ### Background
 
